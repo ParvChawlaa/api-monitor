@@ -98,6 +98,7 @@ export class ApisService {
   
     const user = await this.userModel.find({
       username: username,
+      status: false
     });
     if (user.length == 0)return false;
     if (await bcrypt.compare(password, user[0].password))return true;
