@@ -7,6 +7,7 @@ import { HttpService } from '@nestjs/axios';
 import { User } from '../user/schema/user.schema';
 import { ApiLogs } from '../api-logs/schemas/api-logs.schema';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class ApisService {
   constructor(
@@ -94,25 +95,13 @@ export class ApisService {
   }
 
   async validateUser(username: string, password: string) {
-    //return true;
-    const cachedUser = await this.cacheManager.get(username);
-    if (cachedUser) {
-      if (cachedUser === password) {
-        console.log('cached user');
-        return true;
-      }
-      return false;
-    }
-
+  
     const user = await this.userModel.find({
       username: username,
-      password: password,
     });
-    if (user.length > 0) {
-      await this.cacheManager.set(username, password, 6000);
-      console.log('not cached user');
-      return true;
-    }
+    if (user.length == 0)return false;
+    if (await bcrypt.compare(password, user[0].password))return true;
+    
     return false;
   }
 

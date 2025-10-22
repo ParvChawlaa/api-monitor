@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
       if (usernameTaken == false) username += decodedToken[i];
       if (usernameTaken == true) password += decodedToken[i];
     }
-    //console.log(username,password);
+    console.log(username,password);
     return await this.apisService.validateUser(username, password);
   }
 }
