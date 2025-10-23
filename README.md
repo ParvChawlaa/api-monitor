@@ -14,7 +14,7 @@ A NestJS-based API monitoring and logging system that helps track and analyze AP
 - NestJS
 - TypeScript
 - MongoDB (with Mongoose)
-- JWT Authentication
+- Basic auth
 
 ## Project Setup
 
