@@ -162,15 +162,10 @@ export class ApisService {
         },
       });
       console.log('size of batch' + this.batchOfLogs.length);
-      while (this.insertingLogs) {
-        //await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('waiting for previous logs to be inserted');
-      }
       if (this.batchOfLogs.length >= 10) {
-        this.insertingLogs = true;
-        await this.apiLogsModel.insertMany(this.batchOfLogs);
+        const tempBatchOfLogs = this.batchOfLogs;
         this.batchOfLogs = [];
-        this.insertingLogs = false;
+        await this.apiLogsModel.insertMany(tempBatchOfLogs);
         console.log('batch inserted');
       }
       console.log(apiLink, endTime - startTime);
@@ -181,7 +176,6 @@ export class ApisService {
   }
   private batchOfLogs: Record<string, any>[] = [];
   private apiIdToIntervalId = new Map<string, NodeJS.Timeout>();
-  private insertingLogs: boolean = false;
 
   async stopMeasuring(apiId: string) {
     const intervalId = this.apiIdToIntervalId.get(apiId);
