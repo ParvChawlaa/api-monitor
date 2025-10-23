@@ -11,7 +11,7 @@ export class UserService {
   async register(userDto: UserDto) {
     const existingUser = await this.userModel.findOne({
       username: userDto.username,
-      status: false
+      status: false,
     });
     if (existingUser) {
       return { message: 'User already exists' };

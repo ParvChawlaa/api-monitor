@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       throw new Error('Auth header is missing');
     }
-    const hashedToken = authHeader.substring(6,authHeader.length);
+    const hashedToken = authHeader.substring(6, authHeader.length);
     // console.log(hashedToken);
     const decodedToken = Buffer.from(hashedToken, 'base64').toString('utf-8');
     // console.log(decodedToken);
@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
       if (usernameTaken == false) username += decodedToken[i];
       if (usernameTaken == true) password += decodedToken[i];
     }
-    console.log(username,password);
+    console.log(username, password);
     return await this.apisService.validateUser(username, password);
   }
 }

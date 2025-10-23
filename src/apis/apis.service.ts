@@ -95,14 +95,13 @@ export class ApisService {
   }
 
   async validateUser(username: string, password: string) {
-  
     const user = await this.userModel.find({
       username: username,
-      status: false
+      status: false,
     });
-    if (user.length == 0)return false;
-    if (await bcrypt.compare(password, user[0].password))return true;
-    
+    if (user.length == 0) return false;
+    if (await bcrypt.compare(password, user[0].password)) return true;
+
     return false;
   }
 
@@ -118,6 +117,35 @@ export class ApisService {
       .skip((page - 1) * limit)
       .limit(limit);
   }
+  async validLink(apiLink: string) {
+    try {
+      await this.httpService
+        .request({ url: apiLink, method: 'GET' })
+        .toPromise();
+    } catch (error) {
+      console.log('Error: ' + error.message);
+      return false;
+    }
+    return true;
+  }
+
+  async callApi(
+    apiLink: string,
+    method: string,
+    headers: object,
+    body: object,
+  ) {
+    const startTime = performance.now();
+    const response = await this.httpService
+      .request({ url: apiLink, method: method, headers: headers, data: body })
+      .toPromise();
+    const endTime = performance.now();
+    return {
+      status: response?.status,
+      responseTime: endTime - startTime,
+      responseBody: response?.data,
+    };
+  }
 
   async startMeasuring(
     intervalMs: number,
@@ -129,25 +157,9 @@ export class ApisService {
   ) {
     const intervalId = setInterval(async () => {
       //////// to check if the link is valid
-      try {
-        await this.httpService
-          .request({
-            url: apiLink,
-            method: method,
-            headers: headers,
-            data: body,
-          })
-          .toPromise();
-      } catch (error) {
-        console.log('Error: ' + error.message);
-        return;
-      }
+      if ((await this.validLink(apiLink)) == false) return;
       //////// actual call to the API
-      const startTime = performance.now();
-      const response = await this.httpService
-        .request({ url: apiLink, method: method, headers: headers, data: body })
-        .toPromise();
-      const endTime = performance.now();
+      const response = await this.callApi(apiLink, method, headers, body);
 
       /////////// inserting in batches of 10
       this.batchOfLogs.push({
@@ -155,10 +167,10 @@ export class ApisService {
         logs: {
           Timestamp: new Date(),
           Status: response?.status,
-          ResponseTime: endTime - startTime,
+          ResponseTime: response?.responseTime,
           RequestBody: body,
           RequestHeaders: headers,
-          ResponseBody: response?.data,
+          ResponseBody: response?.responseBody,
         },
       });
       console.log('size of batch' + this.batchOfLogs.length);
@@ -168,7 +180,7 @@ export class ApisService {
         await this.apiLogsModel.insertMany(tempBatchOfLogs);
         console.log('batch inserted');
       }
-      console.log(apiLink, endTime - startTime);
+      console.log(apiLink, response?.responseTime);
     }, intervalMs);
 
     this.apiIdToIntervalId.set(apiId, intervalId);
