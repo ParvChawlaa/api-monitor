@@ -34,7 +34,6 @@ Create a `.env` file in the root directory with the following variables:
 ```
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
 ```
 
 ## Running the Application
@@ -56,11 +55,7 @@ npm run start:prod
 # Unit tests
 npm run test
 
-# E2E tests
-npm run test:e2e
 
-# Test coverage
-npm run test:cov
 ```
 
 ## Project Structure
