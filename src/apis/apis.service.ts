@@ -8,6 +8,9 @@ import { User } from '../user/schema/user.schema';
 import { ApiLogs } from '../api-logs/schemas/api-logs.schema';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as bcrypt from 'bcrypt';
+import {createLogger, format, transports} from 'winston';
+
+
 @Injectable()
 export class ApisService {
   constructor(
@@ -17,6 +20,15 @@ export class ApisService {
     private readonly httpService: HttpService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
+
+  private logger = createLogger({
+    level: 'info',
+    format: format.combine(
+      format.timestamp(),
+      format.json()
+    ),
+    transports: [new transports.File({ filename: 'error.log', level: 'error' })],
+  });
 
   async addApiInfo(ApiInfoDto: ApiDto) {
     //// looking for duplicate (link,method,header,body)
@@ -125,7 +137,7 @@ export class ApisService {
         .request({ url: apiLink, method: 'GET' })
         .toPromise();
     } catch (error) {
-      console.log('Error: ' + error.message);
+      this.logger.error('ERROER'+error.message);
       return false;
     }
     return true;
@@ -137,6 +149,7 @@ export class ApisService {
     headers: object,
     body: object,
   ) {
+    this.logger.info('Calling API: ' + apiLink);
     const startTime = performance.now();
     const response = await this.httpService
       .request({ url: apiLink, method: method, headers: headers, data: body })
@@ -160,8 +173,9 @@ export class ApisService {
   ) {
     const intervalId = setInterval(async () => {
       if (callLimit <= 0){
-      console.log('call limit reached');
-      //this.stopMeasuring(apiId);
+      
+      this.stopMeasuring(apiId);
+      this.logger.error('CALL LIMIT REACHED FOR API: ' + apiLink);
       return;}
       callLimit--;
       //////// to check if the link is valid
