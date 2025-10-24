@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean,IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserDto {
@@ -25,4 +25,12 @@ export class UserDto {
     description: 'The soft deleted flag',
   })
   status: boolean;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 25,
+    description: 'The call limit for the user',
+  })
+  callLimit: number;
 }

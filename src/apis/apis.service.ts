@@ -50,7 +50,7 @@ export class ApisService {
       ApiInfoDto.header,
       ApiInfoDto.body,
       createdObject._id.toString(),
-      25,
+      (await this.userModel.findOne({username: ApiInfoDto.userId,status: false}))?.callLimit ?? 24
     );
     this.apiIdToIntervalId.set(createdObject._id.toString(), await id);
     return createdObject;

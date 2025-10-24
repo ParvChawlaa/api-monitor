@@ -12,6 +12,9 @@ export class User extends Document {
 
   @Prop({ required: true, default: false })
   status: boolean;
+
+  @Prop({ required: true, default: 25 })
+  callLimit: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
