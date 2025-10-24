@@ -38,6 +38,7 @@ export class ApisService {
       ApiInfoDto.header,
       ApiInfoDto.body,
       createdObject._id.toString(),
+      25,
     );
     this.apiIdToIntervalId.set(createdObject._id.toString(), await id);
     return createdObject;
@@ -79,6 +80,7 @@ export class ApisService {
         updatedApi.header,
         updatedApi.body,
         apiid,
+        25
       );
     } else {
       return { message: "coudn't update api" };
@@ -154,8 +156,14 @@ export class ApisService {
     headers: object,
     body: object,
     apiId: string,
+    callLimit: number,
   ) {
     const intervalId = setInterval(async () => {
+      if (callLimit <= 0){
+      console.log('call limit reached');
+      //this.stopMeasuring(apiId);
+      return;}
+      callLimit--;
       //////// to check if the link is valid
       if ((await this.validLink(apiLink)) == false) return;
       //////// actual call to the API
